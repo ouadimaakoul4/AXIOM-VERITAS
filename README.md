@@ -4,11 +4,6 @@ The Premier Scientific Knowledge Engine for Advanced Research
 
 "Where Fundamental Truths Meet Computational Intelligence"
 
-https://img.shields.io/badge/License-MIT-blue.svg
-https://img.shields.io/badge/JavaScript-ES6+-yellow.svg
-https://img.shields.io/badge/PRs-welcome-brightgreen.svg
-https://img.shields.io/badge/Open%20Source-❤️-red.svg
-
 🌟 Vision
 
 AXIOM VERITAS redefines scientific knowledge retrieval by combining semantic intelligence with domain-specific expertise. Built for researchers who demand precision, context, and computational utility.
