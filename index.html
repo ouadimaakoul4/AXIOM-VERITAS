@@ -1,0 +1,616 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroSearch - Moteur de Recherche Scientifique</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0c0c2e 0%, #1a1a3e 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-top: 2rem;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #7e6cca, #4a8fe7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0a0c0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .search-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+        
+        .search-container {
+            width: 100%;
+            max-width: 700px;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            color: white;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 10px 40px rgba(74, 143, 231, 0.3);
+        }
+        
+        .search-input::placeholder {
+            color: #a0a0c0;
+        }
+        
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 6px;
+            background: linear-gradient(90deg, #7e6cca, #4a8fe7);
+            border: none;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 143, 231, 0.4);
+        }
+        
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 1.5rem;
+        }
+        
+        .suggestion-tag {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .suggestion-tag:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .results-container {
+            display: none;
+            margin-top: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+        
+        .result-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+        
+        .result-domain {
+            display: inline-block;
+            background: linear-gradient(90deg, #7e6cca, #4a8fe7);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .result-formula {
+            font-family: 'Cambria Math', serif;
+            font-size: 1.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            text-align: center;
+            border-left: 3px solid #4a8fe7;
+        }
+        
+        .result-description {
+            line-height: 1.6;
+            color: #d0d0e0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .applications-section {
+            margin-top: 2rem;
+        }
+        
+        .applications-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #4a8fe7;
+        }
+        
+        .applications-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        
+        .application-card {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 1rem;
+            border-radius: 10px;
+            border-left: 3px solid #7e6cca;
+        }
+        
+        .application-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+        
+        .application-desc {
+            font-size: 0.9rem;
+            color: #b0b0d0;
+            line-height: 1.5;
+        }
+        
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .tag {
+            background: rgba(126, 108, 202, 0.2);
+            padding: 0.3rem 0.7rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: #b8a9f0;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #4a8fe7;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 10px;
+            margin-top: 2rem;
+        }
+        
+        .wikipedia-ref {
+            font-size: 0.9rem;
+            color: #a0a0c0;
+            margin-top: 1rem;
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .search-input {
+                padding: 1rem 1.2rem;
+                font-size: 1rem;
+            }
+            
+            .search-btn {
+                padding: 0.7rem 1.2rem;
+            }
+            
+            .result-title {
+                font-size: 1.5rem;
+            }
+            
+            .result-formula {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>NeuroSearch</h1>
+            <p class="subtitle">Moteur de recherche intelligent pour lois scientifiques, théorèmes et équations fondamentales</p>
+        </header>
+        
+        <section class="search-section">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Recherchez un théorème, une loi, une équation..." id="searchInput">
+                <button class="search-btn" id="searchBtn">Rechercher</button>
+            </div>
+            
+            <div class="suggestions">
+                <div class="suggestion-tag" data-query="théorème de Pythagore">Théorème de Pythagore</div>
+                <div class="suggestion-tag" data-query="loi de la gravitation universelle">Loi de la gravitation</div>
+                <div class="suggestion-tag" data-query="théorème de Gödel">Théorème de Gödel</div>
+                <div class="suggestion-tag" data-query="principe d'incertitude">Principe d'incertitude</div>
+            </div>
+        </section>
+        
+        <div class="loading" id="loadingIndicator">
+            <div class="loading-spinner"></div>
+            <p>Recherche en cours...</p>
+        </div>
+        
+        <div class="error-message" id="errorMessage">
+            <p>Une erreur s'est produite lors de la recherche. Veuillez réessayer.</p>
+        </div>
+        
+        <div class="results-container" id="resultsContainer">
+            <!-- Les résultats seront injectés ici dynamiquement -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const errorMessage = document.getElementById('errorMessage');
+            const suggestionTags = document.querySelectorAll('.suggestion-tag');
+            
+            // Écouteurs d'événements
+            searchBtn.addEventListener('click', performSearch);
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+            
+            suggestionTags.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    searchInput.value = this.getAttribute('data-query');
+                    performSearch();
+                });
+            });
+            
+            // Fonction de recherche principale
+            async function performSearch() {
+                const query = searchInput.value.trim();
+                if (!query) return;
+                
+                // Afficher l'indicateur de chargement
+                loadingIndicator.style.display = 'block';
+                resultsContainer.style.display = 'none';
+                errorMessage.style.display = 'none';
+                
+                try {
+                    // Recherche dans notre base de données locale
+                    const localResults = searchLocalDatabase(query);
+                    
+                    // Si pas de résultats locaux, chercher sur Wikipedia
+                    if (localResults.length === 0) {
+                        const wikiResult = await searchWikipedia(query);
+                        if (wikiResult) {
+                            displayResults([wikiResult]);
+                        } else {
+                            displayNoResults();
+                        }
+                    } else {
+                        displayResults(localResults);
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la recherche:', error);
+                    errorMessage.style.display = 'block';
+                } finally {
+                    loadingIndicator.style.display = 'none';
+                }
+            }
+            
+            // Base de données locale de lois scientifiques
+            function searchLocalDatabase(query) {
+                const lawsDatabase = [
+                    {
+                        id: 'pythagoras',
+                        nom: 'Théorème de Pythagore',
+                        domaine: 'mathématiques',
+                        formule: 'a² + b² = c²',
+                        description: 'Dans un triangle rectangle, le carré de la longueur de l\'hypoténuse est égal à la somme des carrés des longueurs des deux autres côtés.',
+                        applications: [
+                            {
+                                titre: 'Architecture et construction',
+                                description: 'Utilisé pour calculer les dimensions, vérifier les angles droits et assurer la stabilité des structures.'
+                            },
+                            {
+                                titre: 'Navigation',
+                                description: 'Permet de calculer les distances les plus courtes entre deux points, essentiel pour la navigation maritime et aérienne.'
+                            },
+                            {
+                                titre: 'Informatique graphique',
+                                description: 'Fondamental pour calculer les distances entre des points dans des espaces 2D et 3D, utilisé dans les jeux vidéo et la modélisation.'
+                            }
+                        ],
+                        tags: ['géométrie', 'triangle', 'théorème'],
+                        wikipedia: 'https://fr.wikipedia.org/wiki/Th%C3%A9or%C3%A8me_de_Pythagore'
+                    },
+                    {
+                        id: 'newton_gravitation',
+                        nom: 'Loi de la gravitation universelle',
+                        domaine: 'physique',
+                        formule: 'F = G * (m₁ * m₂) / r²',
+                        description: 'Deux corps massifs s\'attirent avec une force proportionnelle au produit de leurs masses et inversement proportionnelle au carré de la distance qui les sépare.',
+                        applications: [
+                            {
+                                titre: 'Astronomie et astrophysique',
+                                description: 'Explique le mouvement des planètes, des étoiles et des galaxies, ainsi que la formation des systèmes planétaires.'
+                            },
+                            {
+                                titre: 'Ingénierie spatiale',
+                                description: 'Essentielle pour calculer les trajectoires des satellites, des sondes spatiales et des missions interplanétaires.'
+                            },
+                            {
+                                titre: 'Géodésie',
+                                description: 'Permet de modéliser le champ gravitationnel terrestre, crucial pour les systèmes de navigation par satellite comme GPS.'
+                            }
+                        ],
+                        tags: ['gravité', 'newton', 'mécanique céleste'],
+                        wikipedia: 'https://fr.wikipedia.org/wiki/Loi_universelle_de_la_gravitation'
+                    },
+                    {
+                        id: 'godel_incompletude',
+                        nom: 'Théorèmes d\'incomplétude de Gödel',
+                        domaine: 'logique mathématique',
+                        formule: '⊬ Consistance(S) ∧ ⊬ ¬Consistance(S)',
+                        description: 'Dans tout système formel consistant et suffisamment puissant pour contenir l\'arithmétique, il existe des énoncés vrais mais indémontrables.',
+                        applications: [
+                            {
+                                titre: 'Informatique théorique',
+                                description: 'A des implications profondes sur les limites de la calculabilité et la théorie de la complexité algorithmique.'
+                            },
+                            {
+                                titre: 'Philosophie des mathématiques',
+                                description: 'Remet en question le programme formaliste de Hilbert et influence les débats sur les fondements des mathématiques.'
+                            },
+                            {
+                                titre: 'Intelligence artificielle',
+                                description: 'Suggère des limites fondamentales à ce qu\'un système formel (comme un programme IA) peut démontrer sur lui-même.'
+                            }
+                        ],
+                        tags: ['logique', 'fondements', 'incomplétude'],
+                        wikipedia: 'https://fr.wikipedia.org/wiki/Th%C3%A9or%C3%A8mes_d%27incompl%C3%A9tude_de_G%C3%B6del'
+                    },
+                    {
+                        id: 'heisenberg_uncertainty',
+                        nom: 'Principe d\'incertitude de Heisenberg',
+                        domaine: 'physique quantique',
+                        formule: 'Δx * Δp ≥ ħ/2',
+                        description: 'Il est impossible de connaître simultanément avec une précision arbitraire la position et la quantité de mouvement d\'une particule.',
+                        applications: [
+                            {
+                                titre: 'Microscopie électronique',
+                                description: 'Limite fondamentale de la résolution des microscopes électroniques due à l\'interaction entre électrons et échantillons.'
+                            },
+                            {
+                                titre: 'Cryptographie quantique',
+                                description: 'Fonde la sécurité de certains protocoles de cryptographie quantique, car toute mesure perturbe le système mesuré.'
+                            },
+                            {
+                                titre: 'Spectroscopie',
+                                description: 'Explique l\'élargissement naturel des raies spectrales et établit des limites à la précision des mesures spectrales.'
+                            }
+                        ],
+                        tags: ['quantique', 'incertitude', 'mesure'],
+                        wikipedia: 'https://fr.wikipedia.org/wiki/Principe_d%27incertitude'
+                    }
+                ];
+                
+                // Recherche simple par mots-clés
+                const queryLower = query.toLowerCase();
+                return lawsDatabase.filter(law => 
+                    law.nom.toLowerCase().includes(queryLower) ||
+                    law.domaine.toLowerCase().includes(queryLower) ||
+                    law.tags.some(tag => tag.toLowerCase().includes(queryLower)) ||
+                    law.description.toLowerCase().includes(queryLower)
+                );
+            }
+            
+            // Recherche sur Wikipedia
+            async function searchWikipedia(query) {
+                try {
+                    const response = await fetch(`https://fr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`);
+                    if (!response.ok) throw new Error('Article non trouvé');
+                    
+                    const data = await response.json();
+                    
+                    return {
+                        id: 'wiki_' + Date.now(),
+                        nom: data.title,
+                        domaine: 'Wikipedia',
+                        formule: '',
+                        description: data.extract,
+                        applications: [],
+                        tags: [],
+                        wikipedia: data.content_urls.desktop.page,
+                        isWikipedia: true
+                    };
+                } catch (error) {
+                    console.error('Erreur Wikipedia:', error);
+                    return null;
+                }
+            }
+            
+            // Affichage des résultats
+            function displayResults(results) {
+                resultsContainer.innerHTML = '';
+                
+                if (results.length === 0) {
+                    displayNoResults();
+                    return;
+                }
+                
+                results.forEach(result => {
+                    const resultCard = document.createElement('div');
+                    resultCard.className = 'result-card';
+                    
+                    let applicationsHTML = '';
+                    if (result.applications && result.applications.length > 0) {
+                        applicationsHTML = `
+                            <div class="applications-section">
+                                <h3 class="applications-title">Applications dans différents domaines</h3>
+                                <div class="applications-list">
+                                    ${result.applications.map(app => `
+                                        <div class="application-card">
+                                            <div class="application-title">${app.titre}</div>
+                                            <div class="application-desc">${app.description}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    let tagsHTML = '';
+                    if (result.tags && result.tags.length > 0) {
+                        tagsHTML = `
+                            <div class="tags">
+                                ${result.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                            </div>
+                        `;
+                    }
+                    
+                    let formulaHTML = '';
+                    if (result.formule) {
+                        formulaHTML = `<div class="result-formula">${result.formule}</div>`;
+                    }
+                    
+                    resultCard.innerHTML = `
+                        <div class="result-header">
+                            <div>
+                                <h2 class="result-title">${result.nom}</h2>
+                                <span class="result-domain">${result.domaine}</span>
+                            </div>
+                        </div>
+                        ${formulaHTML}
+                        <div class="result-description">${result.description}</div>
+                        ${applicationsHTML}
+                        ${tagsHTML}
+                        <div class="wikipedia-ref">
+                            Source: <a href="${result.wikipedia}" target="_blank" style="color: #4a8fe7;">Wikipedia</a>
+                        </div>
+                    `;
+                    
+                    resultsContainer.appendChild(resultCard);
+                });
+                
+                resultsContainer.style.display = 'block';
+            }
+            
+            function displayNoResults() {
+                resultsContainer.innerHTML = `
+                    <div class="result-card">
+                        <h2 class="result-title">Aucun résultat trouvé</h2>
+                        <div class="result-description">
+                            <p>Aucune loi ou théorème ne correspond à votre recherche "${searchInput.value}".</p>
+                            <p>Essayez avec d'autres termes ou consultez les suggestions ci-dessus.</p>
+                        </div>
+                    </div>
+                `;
+                resultsContainer.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
+	
